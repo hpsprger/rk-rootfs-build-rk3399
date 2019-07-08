@@ -71,11 +71,16 @@ cat <<EOF | sudo chroot $TARGET_ROOTFS_DIR
 
 chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper
 apt-get update
+apt-get install -y lxpolkit
 apt-get install -y blueman:arm64
 echo exit 101 > /usr/sbin/policy-rc.d
 chmod +x /usr/sbin/policy-rc.d
 apt-get install -y blueman:arm64
 rm -f /usr/sbin/policy-rc.d
+
+#---------------power management --------------
+apt-get install -y pm-utils triggerhappy
+cp /etc/Powermanager/triggerhappy.service  /lib/systemd/system/triggerhappy.service
 
 #---------------conflict workaround --------------
 apt-get remove -y xserver-xorg-input-evdev
@@ -113,7 +118,11 @@ else
 fi
 
 #---------------Others--------------
+#---------Camera---------
+dpkg -i  /packages/others/camera/*
+
 #---------FFmpeg---------
+#-----TODO: it will cause crash with online video on chromium---------
 apt-get install -y libsdl2-2.0-0:arm64 libcdio-paranoia1:arm64 libjs-bootstrap:arm64 libjs-jquery:arm64
 dpkg -i  /packages/others/ffmpeg/*
 #---------MPV---------
