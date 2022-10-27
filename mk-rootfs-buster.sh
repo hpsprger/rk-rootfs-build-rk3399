@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+# Building the rk-debain rootfs with debug:
+
+# 执行的命令 VERSION=debug ARCH=${ARCH} ./mk-rootfs-buster.sh  && ./mk-image.sh
+
 # Directory contains the target rootfs
 TARGET_ROOTFS_DIR="binary"
 
@@ -9,13 +13,13 @@ fi
 
 if [ "$ARCH" == "armhf" ]; then
 	ARCH='armhf'
-elif [ "$ARCH" == "arm64" ]; then
+elif [ "$ARCH" == "arm64" ]; then  # ARCH='arm64'
 	ARCH='arm64'
 else
     echo -e "\033[36m please input is: armhf or arm64...... \033[0m"
 fi
 
-if [ ! $VERSION ]; then
+if [ ! $VERSION ]; then  # VERSION=debug
 	VERSION="debug"
 fi
 
@@ -30,29 +34,39 @@ finish() {
 trap finish ERR
 
 echo -e "\033[36m Extract image \033[0m"
+# 解压缩mk-base-debian.sh 编译生成的包
 sudo tar -xpf linaro-buster-alip-*.tar.gz
 
 # packages folder
+# 路径是 /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/binary/packages
 sudo mkdir -p $TARGET_ROOTFS_DIR/packages
+# /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/packages/arm64/*【已有】  ==> 拷贝到 ==> /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/binary/packages
 sudo cp -rf packages/$ARCH/* $TARGET_ROOTFS_DIR/packages
 
 # overlay folder
+# /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/overlay/*【已有】  ==> 拷贝到 ==> /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/binary
 sudo cp -rf overlay/* $TARGET_ROOTFS_DIR/
 
 # overlay-firmware folder
+# /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/overlay-firmware/*【已有】  ==> 拷贝到 ==> /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/binary
 sudo cp -rf overlay-firmware/* $TARGET_ROOTFS_DIR/
 
 # overlay-debug folder
 # adb, video, camera  test file
+# /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/overlay-debug/*【已有】  ==> 拷贝到 ==> /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/binary
 sudo cp -rf overlay-debug/* $TARGET_ROOTFS_DIR/
 
 ## hack the serial
+# /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/overlay/usr/lib/systemd/system/serial-getty@.service【已有】  ==> 拷贝到 ==> /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/binary/lib/systemd/system/serial-getty@.service
 sudo cp -f overlay/usr/lib/systemd/system/serial-getty@.service $TARGET_ROOTFS_DIR/lib/systemd/system/serial-getty@.service
 
+
+# 以下就是各种文件拷贝到 /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/binary 对应的目录下去 ==> 用来创建一个debian的根文件系统
+
 # adb
-if [ "$ARCH" == "armhf" ] && [ "$VERSION" == "debug" ]; then
+if [ "$ARCH" == "armhf" ] && [ "$VERSION" == "debug" ]; then   
 	sudo cp -rf overlay-debug/usr/local/share/adb/adbd-32 $TARGET_ROOTFS_DIR/usr/local/bin/adbd
-elif [ "$ARCH" == "arm64"  ]; then
+elif [ "$ARCH" == "arm64"  ]; then # VERSION=debug && VERSION=debug
 	sudo cp -rf overlay-debug/usr/local/share/adb/adbd-64 $TARGET_ROOTFS_DIR/usr/local/bin/adbd
 fi
 
