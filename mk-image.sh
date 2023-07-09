@@ -42,6 +42,13 @@ echo Copy rootfs to ${MOUNTPOINT}
 # 将 /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/binary【之前做的那个debian的文件系统】 拷贝到 已挂载的镜像文件中去  /home/hpsp/rock_space/rockpi_4b/rockchip-bsp/rootfs/rootfs
 sudo cp -rfp ${TARGET_ROOTFS_DIR}/*  ${MOUNTPOINT}
 
+echo "copy my ko start..."
+echo "copy rockpi4b_ko_for_testing_kernel.ko ==> ${MOUNTPOINT}"
+sudo cp  -f /home/hpsp/rock_space/my_code_wheels/my_code_wheels/fast_ko/kernel_code/rockpi4b_ko/rockpi4b_ko_for_testing_kernel.ko   ${MOUNTPOINT}
+sudo cp  -f /home/hpsp/rock_space/ethtool/ethtool/ethtool    ${MOUNTPOINT}
+sudo ls  -alh  ${MOUNTPOINT} 
+echo "copy my ko end..."
+
 echo Umount rootfs
 sudo umount ${MOUNTPOINT}
 
